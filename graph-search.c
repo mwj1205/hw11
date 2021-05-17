@@ -10,6 +10,7 @@
 
  /* 최대 vertex 10, 번호 0~9 */
  /* 탐색시 여러 Edge 있을 경우 번호 작은 vertex 먼저 탐색 */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -98,7 +99,7 @@ int main() {
         case 'b': case 'B':
             printf("bfs start vertex : ");
             scanf("%d", &i);
-            dfs(h, i);
+            bfs(h, i);
             initflag();
             break;
             /* print graph */
@@ -195,10 +196,10 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
 
 void printgraph(Graphhead* h) { // 그래프 출력
     Graph* p;
-    for (int i = 0; i < h->num; i++) {
+    for (int i = 0; i < h->num; i++) { // vertex의 수 만큼만 반복
         p = h->vertex[i];
-        printf("Vertex [%d] ", i);
-        while (p != NULL) {
+        printf("Vertex [%d] ", i); // vertex number
+        while (p != NULL) { // 링크 따라가며 vertex 출력
             printf("-> %d ", p->vertex);
             p = p->link;
         }
@@ -206,45 +207,45 @@ void printgraph(Graphhead* h) { // 그래프 출력
     }
 }
 
-void dfs(Graphhead* h, int v) { // 깊이 우선 탐색
+void dfs(Graphhead* h, int v) { // 깊이 우선 탐색 recursive
     Graph* w;
-    visitflag[v] = TRUE;
+    visitflag[v] = TRUE; // 방문했다고 표시
     printf("%5d", v);
-    for (w = h->vertex[v]; w; w = w->link) {
-        if (!visitflag[w->vertex])
+    for (w = h->vertex[v]; w; w = w->link) { // 인접한 vertex 따라
+        if (!visitflag[w->vertex])  // 방문한적 없는 vertex만 방문
             dfs(h, w->vertex);
     }
 }
 
-void bfs(Graphhead* h, int v) { // 너비 우선 탐색
+void bfs(Graphhead* h, int v) { // 너비 우선 탐색 iterative
     Graph* w;
     front = rear = -1;
-    printf("%5d",v);
+    printf("%5d", v);
     visitflag[v] = TRUE;
-    enQueue(v);
-    while(front!=rear){
-        v = deQueue();
-        for(w = h->vertex[v]; w; w = w->link){
-            if(!visitflag[w->vertex]){
-                printf("%5d",w->vertex);
+    enQueue(v); // 시작 vertex 큐에 삽입
+    while (front != rear) { // 큐가 공백이 될 때까지
+        v = deQueue(); // 큐에서 vertex 하나 빼옴
+        for (w = h->vertex[v]; w; w = w->link) { // 큐에서 빼온 vertex에 인접한 vertex 큐에 삽입
+            if (!visitflag[w->vertex]) { // 방문한적 없는 vertex만 큐에 삽입
+                printf("%5d", w->vertex);
                 enQueue(w->vertex);
-                visitflag[w->vertex] = TRUE;
+                visitflag[w->vertex] = TRUE; // 방문했다고 표시
             }
         }
     }
 }
 
-int deQueue(){
-	if(front == rear) return NULL; // 큐가 공백이면 NULL 리턴
-	else{
-		front = (front + 1) % MAX_QUEUE_SIZE; // front를 앞으로 한 칸 이동시킨다
-		return queue[front]; // front에 노드 삭제
-	}
+int deQueue() {
+    if (front == rear) return NULL; // 큐가 공백이면 NULL 리턴
+    else {
+        front = (front + 1) % MAX_QUEUE_SIZE; // front를 앞으로 한 칸 이동시킨다
+        return queue[front]; // front에 노드 삭제
+    }
 }
 
-void enQueue(int v){
-	rear = (rear +1) % MAX_QUEUE_SIZE; // rear을 앞으로 한 칸 이동시킨다
-	queue[rear] = v; // rear자리에 노드 삽입
+void enQueue(int v) {
+    rear = (rear + 1) % MAX_QUEUE_SIZE; // rear을 앞으로 한 칸 이동시킨다
+    queue[rear] = v; // rear자리에 노드 삽입
 }
 
 void initflag() {
