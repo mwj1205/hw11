@@ -30,15 +30,16 @@ typedef struct Graphhead {
 
 short int visitflag[MAX_VERTEX] = { FALSE, }; // vertex에 방문 했는지 표시
 
-void Initializegraph(Graphhead *h); // 그래프 초기화
-void Insert_vertex(Graphhead *h);   // vertex 삽입
-void Insert_edge(Graphhead *h);     // edge 삽입
-void freegraph(Graphhead *h);       // 할당된 메모리 해제
+void Initializegraph(Graphhead* h); // 그래프 초기화
+void Insert_vertex(Graphhead* h);   // vertex 삽입
+void Insert_edge(Graphhead* h);     // edge 삽입
+void printgraph(Graphhead* h);      // vertex의 인접한 vertex 출력
+void freegraph(Graphhead* h);       // 할당된 메모리 해제
 
 
 int main() {
     char command;
-    Graphhead *h = (Graphhead*)malloc(sizeof(Graphhead));
+    Graphhead* h = (Graphhead*)malloc(sizeof(Graphhead));
     Initializegraph(h);
     printf("[----- [한민우] [2018038047] -----]\n");
     do {
@@ -63,6 +64,7 @@ int main() {
             /* Quit */
         case 'q': case 'Q':
             freegraph(h);
+            free(h);
             break;
             /* Insert Vertes */
         case 'v': case 'V':
@@ -82,7 +84,7 @@ int main() {
             break;
             /* print graph */
         case 'p': case 'P':
-
+            printgraph(h);
             break;
 
         }
@@ -90,7 +92,7 @@ int main() {
     return 1;
 }
 
-void Initializegraph(Graphhead *h) {
+void Initializegraph(Graphhead* h) {
     if (h->num != 0) freegraph(h);  // 동적으로 할당되어있던 메모리 해제
     h->num = 0; // vertex 수 초기화
     for (int i = 0; i < MAX_VERTEX; i++) {
@@ -99,7 +101,7 @@ void Initializegraph(Graphhead *h) {
     }
 }
 
-void Insert_vertex(Graphhead *h) {
+void Insert_vertex(Graphhead* h) {
     if (h->num >= MAX_VERTEX) { // vertex가 꽉 찼다면
         printf("Graph vertex is full! \n");
         return;
@@ -108,7 +110,7 @@ void Insert_vertex(Graphhead *h) {
     h->num++; // vertex 수 증가
 }
 
-void Insert_edge(Graphhead *h) {     // edge 삽입, 번호가 작은 순으로 삽입
+void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
     int a, b;
     Graph* node1, * node2;  // 양쪽 방향으로 삽입하기 위해 2개 선언
     Graph* prev, * curr;    // 오름차 순으로 삽입하기 위해 그래프 탐색할 포인터
@@ -134,40 +136,54 @@ void Insert_edge(Graphhead *h) {     // edge 삽입, 번호가 작은 순으로 삽입
     curr = h->vertex[a];
 
     if (curr == NULL) h->vertex[a] = node1; // 해당 vertex 번호에 처음 삽입하는 경우
-
-    while (curr != NULL && curr->vertex < a) { // 번호가 더 작은 노드 탐색
-        if (curr->vertex == a) {
-            printf("ERROR! : Same edge is not allowed."); // 이미 존재하는 edge 입력했으면 오류
-            return;
-        }
-        prev = curr;
-        curr = curr->link;
+    else {
+        do{ // 번호가 더 작은 노드 탐색
+            if (curr->vertex == b) {
+                printf("ERROR! : Same edge is not allowed."); // 이미 존재하는 edge 입력했으면 오류
+                return;
+            }
+            prev = curr;
+            curr = curr->link;
+        } while (curr != NULL && curr->vertex < a);
+        if (prev == NULL) h->vertex[a] = node1; // 맨 앞에 삽입하는 경우
+        else prev->link = node1;
+        node1->link = curr;
     }
-    if (prev == NULL) h->vertex[a] = node1; // 맨 앞에 삽입하는 경우
-    else prev->link = node1;
-    node1->link = curr;
-
     /* 반대로도 삽입 */
     prev = NULL;
     curr = h->vertex[b];
 
     if (curr == NULL) h->vertex[b] = node2; // 해당 vertex 번호에 처음 삽입하는 경우
-
-    while (curr != NULL && curr->vertex < b) { // 번호가 더 작은 노드 탐색
-        if (curr->vertex == b) {
-            printf("ERROR! : Same edge is not allowed."); // 이미 존재하는 edge 입력했으면 오류
-            return;
-        }
-        prev = curr;
-        curr = curr->link;
-    }   
-    if (prev == NULL) h->vertex[b] = node2; // 맨 앞에 삽입하는 경우
-    else prev->link = node2;
-    node2->link = curr;
+    else {
+        do{ // 번호가 더 작은 노드 탐색
+            if (curr->vertex == a) {
+                printf("ERROR! : Same edge is not allowed."); // 이미 존재하는 edge 입력했으면 오류
+                return;
+            }
+            prev = curr;
+            curr = curr->link;
+        } while (curr != NULL && curr->vertex < b);
+        if (prev == NULL) h->vertex[b] = node2; // 맨 앞에 삽입하는 경우
+        else prev->link = node2;
+        node2->link = curr;
+    }
     printf(" Vertex[%d] and Vertex[%d] connected.", a, b);
 }
 
-void freegraph(Graphhead *h) { // 할당된 메모리 해제
+void printgraph(Graphhead* h) { // 그래프 출력
+    Graph* p;
+    for (int i = 0; i < h->num; i++) {
+        p = h->vertex[i];
+        printf("Vertex [%d] ", i);
+        while (p != NULL) {
+            printf("-> %d ", p->vertex);
+            p = p->link;
+        }
+        printf("\n");
+    }
+}
+
+void freegraph(Graphhead* h) { // 할당된 메모리 해제
     int i;
     Graph* prev;
     Graph* curr;
@@ -177,9 +193,7 @@ void freegraph(Graphhead *h) { // 할당된 메모리 해제
         curr = prev;
         while (prev != NULL) {   // link타고 이동하면서
             curr = curr->link;
-            free(prev); // 메모리 해제
             prev = curr;
         }
-
     }
 }
