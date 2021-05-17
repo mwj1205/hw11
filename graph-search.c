@@ -8,6 +8,8 @@
  *
  */
 
+/* 최대 vertex 10, 번호 0~9 */
+/* 탐색시 여러 Edge 있을 경우 번호 작은 vertex 먼저 탐색 */
 #include <stdio.h>
 #include <stdlib.h>
 
