@@ -28,17 +28,22 @@ typedef struct Graphhead {
     int num;               // vertex 수
 }Graphhead;
 
+
 short int visitflag[MAX_VERTEX] = { FALSE, }; // vertex에 방문 했는지 표시
 
 void Initializegraph(Graphhead* h); // 그래프 초기화
 void Insert_vertex(Graphhead* h);   // vertex 삽입
 void Insert_edge(Graphhead* h);     // edge 삽입
 void printgraph(Graphhead* h);      // vertex의 인접한 vertex 출력
+void dfs(Graphhead* h, int v);      // 깊이 우선 탐색
+void dfs(Graphhead* h, int v);      // 너비 우선 탐색
+void initflag();                    // visitflag 초기화
 void freegraph(Graphhead* h);       // 할당된 메모리 해제
 
 
 int main() {
     char command;
+    int i;
     Graphhead* h = (Graphhead*)malloc(sizeof(Graphhead));
     Initializegraph(h);
     printf("[----- [한민우] [2018038047] -----]\n");
@@ -76,11 +81,17 @@ int main() {
             break;
             /* Depth first search */
         case 'd': case 'D':
-
+            printf("dfs start vertex : ");
+            scanf("%d", &i);
+            dfs(h, i);
+            initflag();
             break;
             /* Breath first search */
         case 'b': case 'B':
-
+            printf("bfs start vertex : ");
+            scanf("%d", &i);
+            dfs(h, i);
+            initflag();
             break;
             /* print graph */
         case 'p': case 'P':
@@ -124,6 +135,10 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
         printf("ERROR! : Wrong vertex number.\n");
         return;
     }
+    if (a == b) {
+        printf("ERROR! : Not allowed same vertex number");
+        return;
+    }
     node1 = (Graph*)malloc(sizeof(Graph));
     node2 = (Graph*)malloc(sizeof(Graph));
     node1->vertex = b;
@@ -137,14 +152,14 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
 
     if (curr == NULL) h->vertex[a] = node1; // 해당 vertex 번호에 처음 삽입하는 경우
     else {
-        do{ // 번호가 더 작은 노드 탐색
+        while (curr != NULL && curr->vertex <= b) { // 번호가 더 작은 노드 탐색
             if (curr->vertex == b) {
                 printf("ERROR! : Same edge is not allowed."); // 이미 존재하는 edge 입력했으면 오류
                 return;
             }
             prev = curr;
             curr = curr->link;
-        } while (curr != NULL && curr->vertex < a);
+        }
         if (prev == NULL) h->vertex[a] = node1; // 맨 앞에 삽입하는 경우
         else prev->link = node1;
         node1->link = curr;
@@ -155,14 +170,14 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
 
     if (curr == NULL) h->vertex[b] = node2; // 해당 vertex 번호에 처음 삽입하는 경우
     else {
-        do{ // 번호가 더 작은 노드 탐색
+        while (curr != NULL && curr->vertex <= a) { // 번호가 더 작은 노드 탐색
             if (curr->vertex == a) {
                 printf("ERROR! : Same edge is not allowed."); // 이미 존재하는 edge 입력했으면 오류
                 return;
             }
             prev = curr;
             curr = curr->link;
-        } while (curr != NULL && curr->vertex < b);
+        }
         if (prev == NULL) h->vertex[b] = node2; // 맨 앞에 삽입하는 경우
         else prev->link = node2;
         node2->link = curr;
@@ -181,6 +196,24 @@ void printgraph(Graphhead* h) { // 그래프 출력
         }
         printf("\n");
     }
+}
+
+void dfs(Graphhead* h, int v) { // 깊이 우선 탐색
+    Graph* w;
+    visitflag[v] = TRUE;
+    printf("%5d", v);
+    for (w = h->vertex[v]; w; w = w->link) {
+        if (!visitflag[w->vertex])
+            dfs(h, w->vertex);
+    }
+}
+
+void bfs(Graphhead* h, int v) { // 너비 우선 탐색
+
+}
+
+void initflag() {
+    for (int i = 0; i < MAX_VERTEX; i++) visitflag[i] = FALSE;
 }
 
 void freegraph(Graphhead* h) { // 할당된 메모리 해제
