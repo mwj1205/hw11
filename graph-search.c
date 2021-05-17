@@ -10,7 +10,6 @@
 
  /* 최대 vertex 10, 번호 0~9 */
  /* 탐색시 여러 Edge 있을 경우 번호 작은 vertex 먼저 탐색 */
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,6 +27,11 @@ typedef struct Graphhead {
     int num;               // vertex 수
 }Graphhead;
 
+/* for queue */
+#define MAX_QUEUE_SIZE		20
+int queue[MAX_QUEUE_SIZE];
+int front = -1;
+int rear = -1;
 
 short int visitflag[MAX_VERTEX] = { FALSE, }; // vertex에 방문 했는지 표시
 
@@ -36,7 +40,11 @@ void Insert_vertex(Graphhead* h);   // vertex 삽입
 void Insert_edge(Graphhead* h);     // edge 삽입
 void printgraph(Graphhead* h);      // vertex의 인접한 vertex 출력
 void dfs(Graphhead* h, int v);      // 깊이 우선 탐색
-void dfs(Graphhead* h, int v);      // 너비 우선 탐색
+
+void bfs(Graphhead* h, int v);      // 너비 우선 탐색
+int deQueue();
+void enQueue(int v);
+
 void initflag();                    // visitflag 초기화
 void freegraph(Graphhead* h);       // 할당된 메모리 해제
 
@@ -209,7 +217,34 @@ void dfs(Graphhead* h, int v) { // 깊이 우선 탐색
 }
 
 void bfs(Graphhead* h, int v) { // 너비 우선 탐색
+    Graph* w;
+    front = rear = -1;
+    printf("%5d",v);
+    visitflag[v] = TRUE;
+    enQueue(v);
+    while(front!=rear){
+        v = deQueue();
+        for(w = h->vertex[v]; w; w = w->link){
+            if(!visitflag[w->vertex]){
+                printf("%5d",w->vertex);
+                enQueue(w->vertex);
+                visitflag[w->vertex] = TRUE;
+            }
+        }
+    }
+}
 
+int deQueue(){
+	if(front == rear) return NULL; // 큐가 공백이면 NULL 리턴
+	else{
+		front = (front + 1) % MAX_QUEUE_SIZE; // front를 앞으로 한 칸 이동시킨다
+		return queue[front]; // front에 노드 삭제
+	}
+}
+
+void enQueue(int v){
+	rear = (rear +1) % MAX_QUEUE_SIZE; // rear을 앞으로 한 칸 이동시킨다
+	queue[rear] = v; // rear자리에 노드 삽입
 }
 
 void initflag() {
