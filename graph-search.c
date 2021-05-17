@@ -108,8 +108,45 @@ void Insert_vertex(Graphhead h){
     printf("Vertex added\n<Vertex[%d]>\n", h.num);
 }
 
-void Insert_edge(Graphhead h){     // edge 삽입
+void Insert_edge(Graphhead h){     // edge 삽입, 번호가 작은 순으로 삽입
+    int a,b;
+    Graph* node1, *node2;  // 양쪽 방향으로 삽입하기 위해 2개 선언
+    Graph* prev,* curr;    // 오름차 순으로 삽입하기 위해 그래프 탐색할 포인터
 
+    printf("Input vertex num 1 : ");
+    scanf("%d", &a);
+    printf("Input vertex num 2 : ");
+    scanf("%d", &b);
+
+    node1 = (Graph*)malloc(sizeof(Graph));
+    node2 = (Graph*)malloc(sizeof(Graph));
+    node1->vertex = b;
+    node1->link = NULL;
+    node2->vertex = a;
+    node2->link = NULL;
+
+    /* edge 삽입 */
+    prev = NULL;
+    curr = h.vertex[a];
+    while(curr->vertex < a || curr != NULL){ // 번호가 더 작은 노드 탐색
+        prev = curr;
+        curr = curr->link;
+    }
+    if(prev == NULL) h.vertex[a] = node1; // 맨 앞에 삽입하는 경우
+    else prev->link = node1;
+    node1->link = curr;
+
+    /* 반대로도 삽입 */
+    prev = NULL;
+    curr = h.vertex[b];
+    while(curr->vertex < b || curr != NULL){ // 번호가 더 작은 노드 탐색
+        prev = curr;
+        curr = curr->link;
+    }
+    if(prev == NULL) h.vertex[b] = node2; // 맨 앞에 삽입하는 경우
+    else prev->link = node2;
+    node2->link = curr;
+    printf(" Vertex[%d] and Vertex[%d] connected.", a, b);
 }
 
 void freegraph(Graphhead h){ // 할당된 메모리 해제
