@@ -148,18 +148,17 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
         printf("ERROR! : Not allowed same vertex number");
         return;
     }
-    node1 = (Graph*)malloc(sizeof(Graph));
-    node2 = (Graph*)malloc(sizeof(Graph));
-    node1->vertex = b;
-    node1->link = NULL;
-    node2->vertex = a;
-    node2->link = NULL;
 
     /* edge 삽입 */
     prev = NULL;
     curr = h->vertex[a];
 
-    if (curr == NULL) h->vertex[a] = node1; // 해당 vertex 번호에 처음 삽입하는 경우
+    if (curr == NULL){ // 해당 vertex 번호에 처음 삽입하는 경우
+        node1 = (Graph*)malloc(sizeof(Graph));
+        node1->vertex = b;
+        node1->link = NULL;
+        h->vertex[a] = node1;
+    }
     else {
         while (curr != NULL && curr->vertex <= b) { // 번호가 더 작은 노드 탐색
             if (curr->vertex == b) {
@@ -169,15 +168,23 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
             prev = curr;
             curr = curr->link;
         }
+        node1 = (Graph*)malloc(sizeof(Graph));
+        node1->vertex = b;
+        node1->link = curr;
+
         if (prev == NULL) h->vertex[a] = node1; // 맨 앞에 삽입하는 경우
         else prev->link = node1;
-        node1->link = curr;
     }
     /* 반대로도 삽입 */
     prev = NULL;
     curr = h->vertex[b];
 
-    if (curr == NULL) h->vertex[b] = node2; // 해당 vertex 번호에 처음 삽입하는 경우
+    if (curr == NULL){ // 해당 vertex 번호에 처음 삽입하는 경우
+        node2 = (Graph*)malloc(sizeof(Graph));
+        node2->vertex = a;
+        node2->link = NULL;
+        h->vertex[b] = node2;
+    }
     else {
         while (curr != NULL && curr->vertex <= a) { // 번호가 더 작은 노드 탐색
             if (curr->vertex == a) {
@@ -187,9 +194,12 @@ void Insert_edge(Graphhead* h) {     // edge 삽입, 번호가 작은 순으로 삽입
             prev = curr;
             curr = curr->link;
         }
+        node2 = (Graph*)malloc(sizeof(Graph));
+        node2->vertex = a;
+        node2->link = curr;
+
         if (prev == NULL) h->vertex[b] = node2; // 맨 앞에 삽입하는 경우
         else prev->link = node2;
-        node2->link = curr;
     }
     printf(" Vertex[%d] and Vertex[%d] connected.", a, b);
 }
@@ -236,7 +246,7 @@ void bfs(Graphhead* h, int v) { // 너비 우선 탐색 iterative
 }
 
 int deQueue() {
-    if (front == rear) return NULL; // 큐가 공백이면 NULL 리턴
+    if (front == rear) return -1; // 큐가 공백이면 -1 리턴
     else {
         front = (front + 1) % MAX_QUEUE_SIZE; // front를 앞으로 한 칸 이동시킨다
         return queue[front]; // front에 노드 삭제
@@ -262,6 +272,7 @@ void freegraph(Graphhead* h) { // 할당된 메모리 해제
         curr = prev;
         while (prev != NULL) {   // link타고 이동하면서
             curr = curr->link;
+            free(prev);
             prev = curr;
         }
     }
